@@ -1,1 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Materiais</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input, button { padding: 8px; margin: 5px; }
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h2>🔍 Buscar Lista de Materiais por Nº do Orçamento</h2>
+  <input type="text" id="orcamento" placeholder="Digite o número do orçamento" />
+  <button onclick="buscarMateriais()">Gerar Lista de Materiais</button>
+  <div id="resultado"></div>
+
+  <script>
+    function buscarMateriais() {
+      const orc = document.getElementById("orcamento").value;
+      if (!orc) return alert("Digite o número do orçamento!");
+      fetch(`https://script.google.com/macros/s/1AVl3zXYmlR0Jr7LpZlMVf28EnpZYMQj1hRU5VUbfcA4/exec?orcamento=${orc}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data || data.length === 0) return alert("Orçamento não encontrado!");
+          let html = `<h3>Lista de Materiais</h3><table>
+  <tr>
+    <th>Produto</th>
+    <th>Peça</th>
+    <th>Tipo</th>
+    <th>Comprimento</th>
+    <th>Qtd Total</th>
+    <th>Plano de Corte</th>
+    <th>Barras</th>
+    <th>Aproveitamento</th>
+  </tr>`;
+data.forEach(item => {
+  html += `<tr>
+    <td>${item.produto}</td>
+    <td>${item.peca}</td>
+    <td>${item.tipo}</td>
+    <td>${item.comprimento}</td>
+    <td>${item.qtdTotal}</td>
+    <td>${item.planoCorte || '-'}</td>
+    <td>${item.barrasNecessarias || '-'}</td>
+    <td>${item.aproveitamento || '-'}</td>
+  </tr>`;
+});
+html += `</table><br><button onclick="gerarPDF()">📄 Baixar PDF</button>`;
+
+          document.getElementById("resultado").innerHTML = html;
+        });
+    }
+
+    function gerarPDF() {
+      const printContent = document.getElementById("resultado").innerHTML;
+      const win = window.open('', '', 'width=900,height=700');
+      win.document.write(`<html><head><title>PDF</title></head><body>${printContent}</body></html>`);
+      win.document.close();
+      win.print();
+    }
+  </script>
+</body>
+</html>
 
